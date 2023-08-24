@@ -1,6 +1,7 @@
 from dotenv import load_dotenv
 from markdownify import markdownify
 from telebot import types
+import argparse
 import json
 import logging
 import os
@@ -9,7 +10,6 @@ import requests
 import telebot
 import threading
 import websocket
-
 import threading
 
 # Load environment variables from .env file
@@ -27,24 +27,34 @@ add_link_in_telegram = os.getenv('ADD_LINK_IN_TELEGRAM') == 'True'
 add_link_in_mastodon = os.getenv('ADD_LINK_IN_MASTODON') == 'True'
 scope = os.getenv('SCOPE', 'public')  # Default to 'public' if not provided
 
-logging.basicConfig(level=logging.INFO,
-                    format='%(asctime)s %(levelname)s %(message)s',
-                    handlers=[
-                        logging.FileHandler('main.log'),
-                        logging.StreamHandler()
-                    ])
+
+# Parse command-line arguments
+parser = argparse.ArgumentParser(description='Mastodon to Telegram bot')
+parser.add_argument('--no-log-file', action='store_true', help='Disable writing logs to a file')
+args = parser.parse_args()
+
+# Configure logging
+logging_level = logging.INFO
+logging_format = '%(asctime)s %(levelname)s %(message)s'
+logging_handlers = [logging.StreamHandler()]
+if not args.no_log_file:
+    logging_handlers.append(logging.FileHandler('main.log'))
+
+logging.basicConfig(level=logging_level, format=logging_format, handlers=logging_handlers)
 
 bot = telebot.TeleBot(tg_bot_token, parse_mode="MARKDOWN")
 
 
 @bot.channel_post_handler(func=lambda message: message.chat.id != channel_chat_id)
 def wrong_channel(message):
+    """Handles messages from the wrong channel."""
     logging.warning(f'Received message from wrong channel id: {message.chat.id}')
     bot.reply_to(message, "This bot is only for specific channel.")
 
 
 @bot.channel_post_handler(func=lambda message: message.chat.id == channel_chat_id)
 def send_message_to_mastodon(message):
+    """Sends channel messages to Mastodon."""
     logging.info(f'Received channel message from chatid: {message.chat.id} message: {message}')
     try:
         text = message.text
@@ -73,11 +83,13 @@ def send_message_to_mastodon(message):
 
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
+    """Handles /start command and sends a welcome message."""
     logging.info(f'Received channel message from chatid: {message.chat.id} message: {message}')
     bot.reply_to(message, "Welcome to my bot! If you want the same one for yourself, check this: https://github.com/littlebear0729/Mastodon2TG")
 
 
 def send_message_to_channel(content):
+    """Forwards Mastodon toots to Telegram channel."""
     try:
         toot = json.loads(content['payload'])
         if toot['account']['username'] != mastodon_username:
@@ -119,6 +131,7 @@ def send_message_to_channel(content):
 
 
 def on_message(ws, message):
+    """Handles messages received from the Mastodon WebSocket stream."""
     logging.info(f'Websocket: {message}')
     content = json.loads(message)
     if content['event'] == 'update':
@@ -126,10 +139,12 @@ def on_message(ws, message):
 
 
 def on_error(ws, error):
+    """Handles WebSocket errors."""
     logging.warning(f'Websocket Error: {error}')
 
 
 def start_polling():
+    """Starts the Telegram bot polling thread."""
     bot.infinity_polling()
 
 if __name__ == '__main__':

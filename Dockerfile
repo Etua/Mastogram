@@ -6,6 +6,6 @@ COPY ./requirements.txt /app/
 
 RUN pip3 install -r requirements.txt
 
-CMD python3 /app/main.py
+CMD python3 /app/main.py --no-log-file
 
 COPY main.py LICENSE README.md /app/
