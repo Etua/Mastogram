@@ -66,10 +66,10 @@ python main.py
 1. Navigate to `Settings`.
 2. In `Settings` find the `Development` section.
 3. Click on `New Application`
-4. Fill in `Application Name`. e.g. `Mastodon2TG`. This will be displayed when a message is forwarded.**Leave everything else default.**
-5. You have finished creating an application. Click its name to grab the required access token. Copy the value in the field `Your access token` and paste it into `mastodon_api_access_token` in `config.json`.
-6. In `config.json`, fill in `mastodon_app_name`. e.g. `Mastodon2TG`
-7. In `config.json`, fill in `mastodon_username`. e.g. `yourusername`
+4. Fill in `Application Name`. e.g. `Mastodon2TG`. This will be displayed when a message is forwarded. **Leave everything else default.**
+5. You have finished creating an application. Click its name to grab the required access token. Copy the value in the field `Your access token` and paste it into `mastodon_api_access_token` in `.env`.
+6. In `.env`, fill in `mastodon_app_name`. e.g. `Mastodon2TG`
+7. In `.env`, fill in `mastodon_username`. e.g. `yourusername`
 8. You're done!
 
 ## Code License

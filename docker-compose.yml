@@ -13,4 +13,9 @@ services:
       SCOPE: $SCOPE
       ADD_LINK_IN_TELEGRAM: $ADD_LINK_IN_TELEGRAM
       ADD_LINK_IN_MASTODON: $ADD_LINK_IN_MASTODON
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "${MAX_LOG_FILES:-3}"
+        max-size: "${MAX_LOG_SIZE:-1m}"
 version: '3'
