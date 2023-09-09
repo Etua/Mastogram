@@ -104,13 +104,20 @@ def send_message_to_channel(content):
         if toot['visibility'] not in scope:
             logging.info('Toot visibility is not in scope, skipping forwarding to Telegram.')
             return
+
         logging.info(f'Forwarding message from mastodon to telegram.')
         txt = markdownify(toot['content'])
         if "#noforward" in txt:
             logging.info(f'Tag #noforward detected, aborting forwarding this mastodon toot to telegram channel.')
             return
+
+        if txt.startswith('[@'):
+            logging.info('Toot starts with mention, skipping forwarding to Telegram.')
+            return
+
         if add_link_in_telegram:
             txt += 'Forwarded From: ' + toot['url']
+
         logging.info(f'Text sending to telegram: {txt}')
         if len(toot['media_attachments']) != 0:
             medias = []
